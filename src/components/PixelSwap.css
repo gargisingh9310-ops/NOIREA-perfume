@@ -1,0 +1,64 @@
+.pixelswap-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: block;
+  user-select: none;
+  background-color: #080808;
+  contain: paint;
+}
+
+.pixelswap-content-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pixelswap-content-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pixelswap-grid-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+
+.pixelswap-pixel {
+  position: relative;
+  overflow: hidden;
+  will-change: transform, opacity;
+  transform-origin: center center;
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  background-color: #080808;
+}
+
+.pixelswap-pixel-inner {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .pixelswap-pixel {
+    transition: opacity 0.4s ease !important;
+    transform: none !important;
+  }
+}

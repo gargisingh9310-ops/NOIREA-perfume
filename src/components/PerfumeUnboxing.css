@@ -1,0 +1,126 @@
+.unboxing-hero-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background-color: #000000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.unboxing-canvas-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  background-color: #000000;
+}
+
+.unboxing-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Atmospheric ambient backlight */
+.unboxing-ambient-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75vw;
+  height: 75vw;
+  max-width: 900px;
+  max-height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(44, 52, 128, 0.28) 0%, rgba(44, 52, 128, 0.08) 45%, transparent 70%);
+  filter: blur(85px);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.8;
+}
+
+/* Vignette overlay for seamless blending into pure black edges */
+.unboxing-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.75) 85%, #000000 100%);
+  pointer-events: none;
+  z-index: 8;
+}
+
+/* Luxury Loading Screen */
+.unboxing-loader {
+  position: absolute;
+  inset: 0;
+  background-color: #000000;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+}
+
+.unboxing-loader.loaded {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-bar-bg {
+  width: 220px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 1px;
+  overflow: hidden;
+  position: relative;
+}
+
+.loader-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #2C3480, #A8D8F0, #FFFFFF);
+  transition: width 0.15s ease-out;
+}
+
+/* Scroll Prompt Indicator */
+.unboxing-scroll-prompt {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  z-index: 20;
+  color: #A5A5A5;
+  pointer-events: none;
+}
+
+/* Pulse animation for scroll prompt */
+@keyframes scrollPulsePrompt {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(5px);
+  }
+}
+
+.scroll-prompt-pulse {
+  animation: scrollPulsePrompt 2.2s ease-in-out infinite;
+}
