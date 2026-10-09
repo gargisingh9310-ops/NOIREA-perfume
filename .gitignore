@@ -1,3 +1,24 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production build output
+dist/
+dist-ssr/
+
+# Environment files
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite cache
+.vite/
+
 # Logs
 logs
 *.log
@@ -7,26 +28,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
-node_modules
-.pnp
-.pnp.js
-
-# Production build output
-dist
-dist-ssr
-
-# Vite cache & local env
-.vite
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
 # Editor & OS files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
