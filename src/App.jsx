@@ -7,6 +7,7 @@ import PerfumeUnboxing from './components/PerfumeUnboxing';
 import BrandEditorial from './components/BrandEditorial';
 import PerfumeScroller from './components/PerfumeScroller';
 import QuickViewModal from './components/QuickViewModal';
+import MobileHeader from './components/MobileHeader';
 import { Sparkles } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -80,6 +81,12 @@ export default function App() {
       {/* Subtle Noise Texture Grain Overlay */}
       <div className="grain-overlay" />
 
+      {/* 
+        Subtle Luxury Mobile Header & Navigation Drawer 
+        (Strictly hidden on desktop >= 1024px to preserve 100% of desktop appearance) 
+      */}
+      <MobileHeader onNavigate={handleScrollToSection} />
+
       {/* Main Experience: STRICTLY ONLY THREE SECTIONS */}
       <main>
         {/* SECTION 1 — Cinematic Perfume Unboxing Hero (Canvas Frame Scrubbing) */}
@@ -112,6 +119,7 @@ export default function App() {
       {/* Toast Notification */}
       {toastMessage && (
         <div
+          className="noirea-toast"
           style={{
             position: 'fixed',
             bottom: '2.5rem',
@@ -136,6 +144,20 @@ export default function App() {
           <span>{toastMessage}</span>
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .noirea-toast {
+            bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)) !important;
+            right: 1rem !important;
+            left: 1rem !important;
+            padding: 0.85rem 1.2rem !important;
+            font-size: 0.72rem !important;
+            justify-content: center !important;
+            text-align: center !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

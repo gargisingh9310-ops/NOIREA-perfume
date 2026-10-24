@@ -124,3 +124,46 @@
 .scroll-prompt-pulse {
   animation: scrollPulsePrompt 2.2s ease-in-out infinite;
 }
+
+/* Mobile & Tablet Responsiveness (< 1024px) */
+@media (max-width: 1023px) {
+  .unboxing-hero-section {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .unboxing-ambient-glow {
+    width: 90vw;
+    height: 90vw;
+    max-width: 500px;
+    max-height: 500px;
+    filter: blur(60px);
+  }
+
+  .unboxing-scroll-prompt {
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 480px) {
+  .unboxing-loader {
+    gap: 1.2rem;
+    padding: 0 1.5rem;
+  }
+
+  .unboxing-loader .mono-tag {
+    font-size: 0.64rem !important;
+    letter-spacing: 0.22em !important;
+    text-align: center;
+  }
+
+  .loader-bar-bg {
+    width: 180px;
+  }
+
+  .unboxing-scroll-prompt span {
+    font-size: 0.62rem !important;
+    letter-spacing: 0.2em !important;
+  }
+}
+

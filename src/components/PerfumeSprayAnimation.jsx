@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Sparkles } from 'lucide-react';
@@ -11,7 +11,10 @@ const TOTAL_FRAMES = 240;
 const padZero = (n) => String(n).padStart(3, '0');
 const getFramePath = (index) => `/perfumesprey/ezgif-frame-${padZero(index + 1)}.jpg`;
 
-export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400', className = '' }) {
+const PerfumeSprayAnimation = forwardRef(function PerfumeSprayAnimation(
+  { triggerRef, scrollEnd = '+=2400', isControlled = false, className = '' },
+  ref
+) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const glowRef = useRef(null);
@@ -31,7 +34,26 @@ export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400'
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const img = imagesRef.current[frameIdx];
+    const images = imagesRef.current;
+    if (!images || images.length === 0) return;
+
+    // Retrieve requested frame, or gracefully fallback to nearest loaded frame
+    let img = images[frameIdx];
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      let nearest = null;
+      let minDiff = Infinity;
+      for (let i = 0; i < images.length; i++) {
+        if (images[i] && images[i].complete && images[i].naturalWidth > 0) {
+          const diff = Math.abs(i - frameIdx);
+          if (diff < minDiff) {
+            minDiff = diff;
+            nearest = images[i];
+          }
+        }
+      }
+      img = nearest;
+    }
+
     if (!img || !img.complete || img.naturalWidth === 0) return;
 
     const { width, height } = sizeRef.current;
@@ -73,22 +95,58 @@ export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400'
     }
   }, [renderFrame]);
 
+  // Imperative handle for parent master ScrollTrigger to drive frame updates seamlessly
+  useImperativeHandle(ref, () => ({
+    setProgress: (progress) => {
+      const clamped = Math.min(1, Math.max(0, progress));
+      const frameIndex = Math.min(
+        TOTAL_FRAMES - 1,
+        Math.max(0, Math.floor(clamped * TOTAL_FRAMES))
+      );
+      requestFrameRender(frameIndex);
+
+      // Atmospheric backlight glow sync
+      if (glowRef.current) {
+        const scale = 1 + 0.25 * clamped;
+        const opacity = 0.6 + 0.25 * clamped;
+        glowRef.current.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        glowRef.current.style.opacity = `${opacity}`;
+      }
+    },
+    setFrame: (frameIdx) => {
+      requestFrameRender(frameIdx);
+    },
+    getCurrentFrame: () => currentFrameRef.current,
+    isReady: () => isLoaded,
+  }), [requestFrameRender, isLoaded]);
+
   // Preload all 240 image frames
   useEffect(() => {
     let isCancelled = false;
     let loadedCount = 0;
     const images = [];
 
-    const onImageLoaded = () => {
+    const onImageLoaded = (idx) => {
       if (isCancelled) return;
       loadedCount++;
       const progress = Math.round((loadedCount / TOTAL_FRAMES) * 100);
       setLoadingProgress(progress);
 
-      // Once the first 20 frames are ready, display canvas immediately
-      if (loadedCount >= 20 && !isLoaded) {
+      // Render first frame immediately as soon as frame 0 is available
+      if (idx === 0 && !isLoaded) {
         setIsLoaded(true);
         requestFrameRender(0);
+      }
+
+      // Hide loader once initial batch is ready
+      if (loadedCount >= 10 && !isLoaded) {
+        setIsLoaded(true);
+        requestFrameRender(currentFrameRef.current);
+      }
+
+      // If newly loaded frame matches current requested frame, redraw
+      if (idx === currentFrameRef.current) {
+        requestFrameRender(idx);
       }
 
       if (loadedCount === TOTAL_FRAMES) {
@@ -98,15 +156,15 @@ export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400'
       }
     };
 
-    const onImageError = () => {
-      onImageLoaded(); // Gracefully continue if an individual frame fails
+    const onImageError = (idx) => {
+      onImageLoaded(idx); // Gracefully continue if an individual frame fails
     };
 
     for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
       img.src = getFramePath(i);
-      img.onload = onImageLoaded;
-      img.onerror = onImageError;
+      img.onload = () => onImageLoaded(i);
+      img.onerror = () => onImageError(i);
       images.push(img);
     }
 
@@ -115,7 +173,7 @@ export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400'
     return () => {
       isCancelled = true;
     };
-  }, [requestFrameRender]);
+  }, [requestFrameRender, isLoaded]);
 
   // Handle Retina Canvas Resolution and Container Resizing
   useEffect(() => {
@@ -133,7 +191,7 @@ export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400'
 
       if (w <= 0 || h <= 0) return;
 
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       canvas.style.width = `${w}px`;
@@ -158,15 +216,16 @@ export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400'
     };
   }, [renderFrame]);
 
-  // GSAP ScrollTrigger Frame Scrubbing Timeline
+  // Optional standalone ScrollTrigger fallback if not controlled by master section trigger
   useEffect(() => {
+    if (isControlled) return;
+
     const container = containerRef.current;
     if (!container) return;
 
     const scrollTarget = triggerRef?.current || container;
 
     const ctx = gsap.context(() => {
-      // 1. Frame Scrubbing ScrollTrigger mapped to scroll progress of the pinned section
       ScrollTrigger.create({
         trigger: scrollTarget,
         start: 'top top',
@@ -181,7 +240,6 @@ export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400'
         },
       });
 
-      // 2. Subtle atmospheric backlight enhancement
       if (glowRef.current) {
         gsap.to(glowRef.current, {
           scale: 1.25,
@@ -199,7 +257,7 @@ export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400'
     }, container);
 
     return () => ctx.revert();
-  }, [triggerRef, scrollEnd, requestFrameRender]);
+  }, [isControlled, triggerRef, scrollEnd, requestFrameRender]);
 
   return (
     <div
@@ -237,4 +295,6 @@ export default function PerfumeSprayAnimation({ triggerRef, scrollEnd = '+=2400'
       </div>
     </div>
   );
-}
+});
+
+export default PerfumeSprayAnimation;

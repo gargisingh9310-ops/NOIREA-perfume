@@ -11,6 +11,7 @@ const SCROLL_DURATION = '+=2200';
 
 export default function BrandEditorial({ onDiscoverCollection }) {
   const sectionRef = useRef(null);
+  const sprayAnimRef = useRef(null);
   const contentGridRef = useRef(null);
   const tagRef = useRef(null);
   const line1Ref = useRef(null);
@@ -26,14 +27,21 @@ export default function BrandEditorial({ onDiscoverCollection }) {
     if (!container) return;
 
     const ctx = gsap.context(() => {
-      // 1. Master ScrollTrigger pinning Section 2 at 100vh for 2200px scroll space
+      const isMobile = window.innerWidth < 1024;
+
+      // 1. Master ScrollTrigger pinning Section 2 and driving perfume spray animation
       ScrollTrigger.create({
         trigger: container,
         start: 'top top',
-        end: SCROLL_DURATION,
+        end: () => (window.innerWidth < 1024 ? '+=1600' : SCROLL_DURATION),
         pin: true,
         scrub: 0.8,
         anticipatePin: 1,
+        onUpdate: (self) => {
+          if (sprayAnimRef.current?.setProgress) {
+            sprayAnimRef.current.setProgress(self.progress);
+          }
+        },
       });
 
       // 2. Slow atmospheric deep-blue radial glow movement
@@ -79,13 +87,15 @@ export default function BrandEditorial({ onDiscoverCollection }) {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: container,
-          start: 'top 70%',
+          start: isMobile ? 'top 95%' : 'top 70%',
         },
       });
 
+      const yOffset = isMobile ? 0 : 15;
+
       tl.fromTo(
         tagRef.current,
-        { opacity: 0, y: 15 },
+        { opacity: 0, y: yOffset },
         { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
       )
         .fromTo(
@@ -96,13 +106,13 @@ export default function BrandEditorial({ onDiscoverCollection }) {
         )
         .fromTo(
           bodyTextRef.current,
-          { opacity: 0, y: 15 },
+          { opacity: 0, y: yOffset },
           { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
           '-=0.6'
         )
         .fromTo(
           ctaRef.current,
-          { opacity: 0, y: 15 },
+          { opacity: 0, y: yOffset },
           { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
           '-=0.6'
         );
@@ -120,10 +130,14 @@ export default function BrandEditorial({ onDiscoverCollection }) {
     }
   };
 
+  const isMobileView = typeof window !== 'undefined' && window.innerWidth < 1024;
+  const activeScrollDuration = isMobileView ? '+=1600' : SCROLL_DURATION;
+
   return (
     <section
       ref={sectionRef}
       id="brand-editorial"
+      className="editorial-section"
       style={{
         position: 'relative',
         backgroundColor: '#000000',
@@ -142,7 +156,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
         direction="right"
         speed={0.35}
         borderColor="rgba(44, 52, 128, 0.28)"
-        squareSize={55}
+        squareSize={isMobileView ? 42 : 55}
         hoverFillColor="#2C3480"
         shape="square"
         hoverTrailAmount={5}
@@ -157,6 +171,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
       {/* 2. Top Monochrome Hairline Divider */}
       <div
         ref={dividerLine1Ref}
+        className="editorial-divider-line"
         style={{
           position: 'absolute',
           top: 0,
@@ -172,6 +187,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
       {/* 3. Subtle Atmospheric Radial Glow Behind the Perfume Composition */}
       <div
         ref={atmosphericGlowRef}
+        className="editorial-ambient-glow"
         style={{
           position: 'absolute',
           top: '50%',
@@ -207,6 +223,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
       >
         {/* Left Side: Editorial Typography & Copy */}
         <div
+          className="editorial-copy-col"
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -236,6 +253,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
           {/* Large Headline with Masked Reveal */}
           <div>
             <h2
+              className="editorial-heading"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontSize: 'clamp(2.2rem, 3.8vw, 3.8rem)',
@@ -269,6 +287,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
           {/* Supporting Copy */}
           <div
             ref={bodyTextRef}
+            className="editorial-body-wrap"
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -277,6 +296,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
             }}
           >
             <p
+              className="editorial-description"
               style={{
                 fontFamily: 'var(--font-sans)',
                 fontSize: 'clamp(0.92rem, 1.1vw, 1.05rem)',
@@ -291,7 +311,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
           </div>
 
           {/* CTA Action */}
-          <div ref={ctaRef} style={{ paddingTop: '0.4rem' }}>
+          <div ref={ctaRef} className="editorial-cta-wrap" style={{ paddingTop: '0.4rem' }}>
             <a
               href="#collection-scroller"
               onClick={handleScrollToCollection}
@@ -304,7 +324,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
         </div>
 
         {/* Right Side: Landscape-Oriented Scroll-Controlled Perfume Spray Frame Animation */}
-        <div style={{ position: 'relative', width: '100%', pointerEvents: 'auto' }}>
+        <div className="editorial-visual-col" style={{ position: 'relative', width: '100%', pointerEvents: 'auto' }}>
           <div
             style={{
               position: 'relative',
@@ -312,8 +332,10 @@ export default function BrandEditorial({ onDiscoverCollection }) {
             }}
           >
             <PerfumeSprayAnimation
+              ref={sprayAnimRef}
+              isControlled={true}
               triggerRef={sectionRef}
-              scrollEnd={SCROLL_DURATION}
+              scrollEnd={activeScrollDuration}
             />
           </div>
 
@@ -361,6 +383,7 @@ export default function BrandEditorial({ onDiscoverCollection }) {
       {/* Bottom Monochrome Hairline Divider */}
       <div
         ref={dividerLine2Ref}
+        className="editorial-divider-line"
         style={{
           position: 'absolute',
           bottom: 0,
@@ -374,20 +397,238 @@ export default function BrandEditorial({ onDiscoverCollection }) {
       />
 
       <style>{`
-        @media (max-width: 992px) {
-          #brand-editorial {
-            height: auto !important;
-            min-height: 100vh !important;
-            padding: 7rem 0 8rem !important;
+        /* STRICT PRESERVATION: At >= 1024px desktop, all original styling applies */
+        @media (max-width: 1023px) {
+          #brand-editorial.editorial-section {
+            height: 100vh !important;
+            height: 100dvh !important;
+            min-height: 0 !important;
+            padding: calc(4.6rem + env(safe-area-inset-top, 0px)) 1rem calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
           }
+
           .editorial-grid {
-            grid-template-columns: 1fr !important;
-            gap: 3.5rem !important;
-            max-height: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            grid-template-columns: none !important;
+            gap: 0.85rem !important;
+            max-height: 100% !important;
+            padding: 0 !important;
+            margin: 0 auto !important;
+            box-sizing: border-box !important;
           }
-          .editorial-badge {
+
+          .editorial-divider-line {
             left: 1rem !important;
-            bottom: -1rem !important;
+            right: 1rem !important;
+          }
+
+          .editorial-ambient-glow {
+            width: 80vw !important;
+            height: 80vw !important;
+            right: 50% !important;
+            top: 60% !important;
+            transform: translate(50%, -50%) !important;
+            filter: blur(55px) !important;
+            opacity: 0.35 !important;
+          }
+
+          /* 1. Header, Description, and CTA Styling on Mobile */
+          .editorial-copy-col {
+            width: 100% !important;
+            max-width: 440px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
+            gap: 0.55rem !important;
+            margin: 0 auto !important;
+          }
+
+          .editorial-copy-col .mono-tag {
+            font-size: 0.65rem !important;
+            letter-spacing: 0.18em !important;
+            gap: 0.4rem !important;
+            justify-content: center !important;
+          }
+
+          .editorial-heading {
+            font-size: clamp(1.35rem, 4.6vw, 1.85rem) !important;
+            line-height: 1.15 !important;
+            letter-spacing: 0.02em !important;
+            text-align: center !important;
+          }
+
+          .editorial-body-wrap {
+            max-width: 100% !important;
+            margin: 0 auto !important;
+          }
+
+          .editorial-description {
+            font-size: 0.78rem !important;
+            line-height: 1.45 !important;
+            max-width: 320px !important;
+            margin: 0 auto !important;
+            text-align: center !important;
+            color: rgba(255, 255, 255, 0.78) !important;
+          }
+
+          .editorial-cta-wrap {
+            display: flex !important;
+            justify-content: center !important;
+            padding-top: 0.2rem !important;
+            width: 100% !important;
+          }
+
+          .editorial-cta-wrap .btn-noirea-primary {
+            padding: 0.65rem 1.4rem !important;
+            font-size: 0.66rem !important;
+            letter-spacing: 0.14em !important;
+            min-height: 40px !important;
+            height: 40px !important;
+            max-width: 260px !important;
+            width: auto !important;
+            gap: 0.45rem !important;
+            white-space: nowrap !important;
+            margin: 0 auto !important;
+          }
+
+          .editorial-cta-wrap .btn-noirea-primary svg {
+            width: 12px !important;
+            height: 12px !important;
+          }
+
+          /* 2. Visual Container: Perfume Bottle Centered & Scaled to Viewport */
+          .editorial-visual-col {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: relative !important;
+          }
+
+          .editorial-visual-col > div:first-child {
+            width: 100% !important;
+            max-width: min(340px, 92vw) !important;
+            margin: 0 auto !important;
+            display: flex !important;
+            justify-content: center !important;
+          }
+
+          /* Atelier seal badge positioned neatly below canvas without overlapping */
+          .editorial-badge {
+            position: static !important;
+            margin: 0.5rem auto 0 !important;
+            align-self: center !important;
+            padding: 0.35rem 0.8rem !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            box-shadow: none !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            background-color: rgba(13, 13, 13, 0.8) !important;
+          }
+
+          .editorial-badge span.mono-tag {
+            font-size: 0.52rem !important;
+            letter-spacing: 0.2em !important;
+          }
+
+          .editorial-badge span:last-child {
+            font-size: 0.75rem !important;
+            letter-spacing: 0.08em !important;
+          }
+        }
+
+        /* Screen widths <= 360px (e.g. 320px narrow phones) */
+        @media (max-width: 360px) {
+          #brand-editorial.editorial-section {
+            padding: calc(4.2rem + env(safe-area-inset-top, 0px)) 0.5rem calc(0.8rem + env(safe-area-inset-bottom, 0px)) !important;
+          }
+
+          .editorial-grid {
+            gap: 0.65rem !important;
+          }
+
+          .editorial-heading {
+            font-size: 1.3rem !important;
+          }
+
+          .editorial-description {
+            font-size: 0.74rem !important;
+            line-height: 1.4 !important;
+            max-width: 280px !important;
+          }
+
+          .editorial-cta-wrap .btn-noirea-primary {
+            padding: 0.55rem 1.1rem !important;
+            font-size: 0.62rem !important;
+            min-height: 36px !important;
+            height: 36px !important;
+            max-width: 240px !important;
+          }
+
+          .editorial-visual-col > div:first-child {
+            max-width: min(280px, 92vw) !important;
+          }
+
+          .editorial-badge {
+            padding: 0.25rem 0.65rem !important;
+            margin-top: 0.4rem !important;
+          }
+        }
+
+        /* Ultra-short viewports (<= 560px screen height) */
+        @media (max-height: 560px) and (max-width: 1023px) {
+          #brand-editorial.editorial-section {
+            padding: calc(3.8rem + env(safe-area-inset-top, 0px)) 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
+          }
+
+          .editorial-grid {
+            gap: 0.45rem !important;
+          }
+
+          .editorial-copy-col {
+            gap: 0.35rem !important;
+          }
+
+          .editorial-heading {
+            font-size: 1.25rem !important;
+          }
+
+          .editorial-description {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            font-size: 0.72rem !important;
+          }
+
+          .editorial-cta-wrap .btn-noirea-primary {
+            min-height: 34px !important;
+            height: 34px !important;
+            font-size: 0.6rem !important;
+            padding: 0.45rem 0.9rem !important;
+          }
+
+          .editorial-visual-col > div:first-child {
+            max-width: min(250px, 85vw) !important;
+          }
+
+          .editorial-badge {
+            display: none !important;
           }
         }
       `}</style>

@@ -18,6 +18,7 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
 
   return (
     <div
+      className="quick-view-modal-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -64,13 +65,16 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
         {/* Close Button */}
         <button
           onClick={onClose}
-          aria-label="Close"
+          aria-label="Close modal"
+          className="quick-view-close-btn"
           style={{
             position: 'absolute',
             top: '1.2rem',
             right: '1.2rem',
             zIndex: 10,
             padding: '0.6rem',
+            minWidth: '44px',
+            minHeight: '44px',
             backgroundColor: 'rgba(20, 20, 20, 0.9)',
             border: '1px solid rgba(255, 255, 255, 0.15)',
             borderRadius: '50%',
@@ -93,6 +97,7 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
 
         {/* Left: Product Flacon Presentation */}
         <div
+          className="quick-view-flacon-wrap"
           style={{
             position: 'relative',
             backgroundColor: '#080808',
@@ -160,6 +165,7 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
 
         {/* Right: Product Narrative & Ordering */}
         <div
+          className="quick-view-info-col"
           style={{
             padding: '3rem 2.8rem',
             overflowY: 'auto',
@@ -181,6 +187,7 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
             </div>
 
             <h2
+              className="quick-view-heading"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontSize: '2.2rem',
@@ -208,6 +215,7 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
 
           {/* Description */}
           <p
+            className="quick-view-desc"
             style={{
               fontFamily: 'var(--font-sans)',
               fontSize: '0.92rem',
@@ -224,9 +232,10 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
             <span className="mono-tag" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--text-secondary)' }}>
               SELECT FLACON SIZE
             </span>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div className="quick-view-size-selector" style={{ display: 'flex', gap: '1rem' }}>
               <button
                 onClick={() => setSelectedSize(100)}
+                className="quick-view-size-btn"
                 style={{
                   flex: 1,
                   padding: '0.9rem',
@@ -249,6 +258,7 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
 
               <button
                 onClick={() => setSelectedSize(50)}
+                className="quick-view-size-btn"
                 style={{
                   flex: 1,
                   padding: '0.9rem',
@@ -273,6 +283,7 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
 
           {/* Scent Notes Preview */}
           <div
+            className="quick-view-accords-box"
             style={{
               padding: '1.2rem',
               backgroundColor: '#141414',
@@ -302,7 +313,7 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: '2rem', marginTop: '1rem', paddingTop: '0.8rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div className="quick-view-accords-footer" style={{ display: 'flex', gap: '2rem', marginTop: '1rem', paddingTop: '0.8rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Clock size={14} color="var(--accent-icy-blue)" />
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
@@ -319,9 +330,10 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
           </div>
 
           {/* Quantity & CTA */}
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+          <div className="quick-view-cta-row" style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
             {/* Quantity Stepper */}
             <div
+              className="quick-view-stepper"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -331,7 +343,9 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
             >
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                style={{ padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', color: '#FFFFFF' }}
+                style={{ padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', color: '#FFFFFF', minHeight: '44px', minWidth: '44px', justifyContent: 'center' }}
+                aria-label="Decrease quantity"
+                type="button"
               >
                 <Minus size={14} />
               </button>
@@ -349,7 +363,9 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
               </span>
               <button
                 onClick={() => setQuantity(quantity + 1)}
-                style={{ padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', color: '#FFFFFF' }}
+                style={{ padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', color: '#FFFFFF', minHeight: '44px', minWidth: '44px', justifyContent: 'center' }}
+                aria-label="Increase quantity"
+                type="button"
               >
                 <Plus size={14} />
               </button>
@@ -358,8 +374,9 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
             {/* Add to Bag Button */}
             <button
               onClick={handleAdd}
-              className="btn-noirea-primary"
+              className="btn-noirea-primary quick-view-add-btn"
               style={{ flex: 1, padding: '1rem 1.6rem' }}
+              type="button"
             >
               <span>ADD TO BAG — ${(currentPrice * quantity).toFixed(0)}</span>
             </button>
@@ -382,11 +399,85 @@ export default function QuickViewModal({ perfume, isOpen, onClose, onAddToCart }
           from { opacity: 0; transform: translateY(30px) scale(0.97); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
+
+        /* STRICT PRESERVATION: At >= 861px desktop, desktop grid applies */
         @media (max-width: 860px) {
+          .quick-view-modal-backdrop {
+            padding: 0.75rem !important;
+          }
+
           .quick-view-grid {
             grid-template-columns: 1fr !important;
-            max-height: 85vh !important;
+            max-height: 88vh !important;
+            max-height: 88dvh !important;
             overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+          }
+
+          .quick-view-close-btn {
+            top: 0.65rem !important;
+            right: 0.65rem !important;
+          }
+
+          .quick-view-flacon-wrap {
+            min-height: 190px !important;
+            max-height: 230px !important;
+            border-right: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+          }
+
+          .quick-view-info-col {
+            padding: 1.4rem 1.25rem 2rem !important;
+            gap: 1.1rem !important;
+          }
+
+          .quick-view-heading {
+            font-size: 1.75rem !important;
+          }
+
+          .quick-view-accords-footer {
+            flex-wrap: wrap !important;
+            gap: 0.9rem !important;
+          }
+
+          .quick-view-cta-row {
+            gap: 0.6rem !important;
+          }
+
+          .quick-view-add-btn {
+            min-height: 44px !important;
+            padding: 0.85rem 1.2rem !important;
+            font-size: 0.72rem !important;
+          }
+        }
+
+        @media (max-width: 430px) {
+          .quick-view-modal-backdrop {
+            padding: 0.4rem !important;
+          }
+
+          .quick-view-size-selector {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+          }
+
+          .quick-view-size-btn {
+            padding: 0.75rem 0.8rem !important;
+            min-height: 44px !important;
+          }
+
+          .quick-view-cta-row {
+            flex-direction: column !important;
+            width: 100% !important;
+          }
+
+          .quick-view-stepper {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+
+          .quick-view-add-btn {
+            width: 100% !important;
           }
         }
       `}</style>

@@ -134,7 +134,7 @@ export default function PerfumeUnboxing() {
 
       if (w <= 0 || h <= 0) return;
 
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       canvas.style.width = `${w}px`;
@@ -165,11 +165,14 @@ export default function PerfumeUnboxing() {
     if (!container) return;
 
     const ctx = gsap.context(() => {
-      // 1. Master ScrollTrigger pinned to viewport for 3500px scroll space (~350vh)
+      const isMobile = window.innerWidth < 1024;
+      const scrollEndDistance = isMobile ? '+=2200' : '+=3500';
+
+      // 1. Master ScrollTrigger pinned to viewport (responsive scrub distance for mobile)
       ScrollTrigger.create({
         trigger: container,
         start: 'top top',
-        end: '+=3500',
+        end: scrollEndDistance,
         pin: true,
         scrub: 0.8,
         anticipatePin: 1,
@@ -187,7 +190,7 @@ export default function PerfumeUnboxing() {
         scrollTrigger: {
           trigger: container,
           start: 'top top',
-          end: '+=3500',
+          end: scrollEndDistance,
           scrub: 0.8,
         },
       });
